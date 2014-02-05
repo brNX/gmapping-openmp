@@ -1,0 +1,10 @@
+--- ./gridfastslam/gfsreader.cpp	2008-07-09 03:25:13.000000000 -0700
++++ ../../gmapping_export/gridfastslam/gfsreader.cpp	2011-10-24 14:39:43.393237444 -0700
+@@ -1,6 +1,7 @@
+ #include "gfsreader.h"
+ #include <iomanip>
+ #include <limits>
++#include <cstring>
+ 
+ namespace  GMapping { 
+ 

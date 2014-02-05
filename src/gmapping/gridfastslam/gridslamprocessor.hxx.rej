@@ -1,0 +1,30 @@
+--- ./gridfastslam/gridslamprocessor.hxx	2007-08-27 08:29:07.000000000 -0700
++++ ../../gmapping_export/gridfastslam/gridslamprocessor.hxx	2011-10-24 14:39:43.403237397 -0700
+@@ -67,7 +67,7 @@
+   
+ }
+ 
+-inline bool GridSlamProcessor::resample(const double* plainReading, int adaptSize, const RangeReading* ){
++inline bool GridSlamProcessor::resample(const double* plainReading, int adaptSize, const RangeReading* reading){
+   
+   bool hasResampled = false;
+   
+@@ -112,7 +112,7 @@
+       TNode* oldNode=oldGeneration[m_indexes[i]];
+       //			cerr << i << "->" << m_indexes[i] << "B("<<oldNode->childs <<") ";
+       node=new	TNode(p.pose, 0, oldNode, 0);
+-      node->reading=0;
++      node->reading=reading;
+       //			cerr << "A("<<node->parent->childs <<") " <<endl;
+       
+       temp.push_back(p);
+@@ -155,7 +155,8 @@
+       TNode* node=0;
+       node=new TNode(it->pose, 0.0, *node_it, 0);
+       
+-      node->reading=0;
++      //node->reading=0;
++      node->reading=reading;
+       it->node=node;
+ 
+       //END: BUILDING TREE

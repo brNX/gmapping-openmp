@@ -1,0 +1,15 @@
+--- ./grid/harray2d.h	2007-08-27 08:29:07.000000000 -0700
++++ ../../gmapping_export/grid/harray2d.h	2011-10-24 14:39:43.413237311 -0700
+@@ -137,10 +137,12 @@
+ template <class Cell>
+ AccessibilityState  HierarchicalArray2D<Cell>::cellState(int x, int y) const {
+ 	if (this->isInside(patchIndexes(x,y)))
++        {
+ 		if(isAllocated(x,y))
+ 			return (AccessibilityState)((int)Inside|(int)Allocated);
+ 		else
+ 			return Inside;
++        }
+ 	return Outside;
+ }
+ 

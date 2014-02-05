@@ -1,0 +1,19 @@
+--- ./gridfastslam/gfs2rec.cpp	2007-01-15 03:28:18.000000000 -0800
++++ ../../gmapping_export/gridfastslam/gfs2rec.cpp	2011-10-24 14:39:43.403237397 -0700
+@@ -3,6 +3,7 @@
+ #include <sstream>
+ #include <vector>
+ #include <list>
++#include <cstring>
+ #include <utils/point.h>
+ 
+ #define MAX_LINE_LENGHT (1000000)
+@@ -368,7 +369,7 @@
+ 
+ 
+ 
+-int main (unsigned int argc, const char * const * argv){
++int main ( int argc, const char * const * argv){
+ 	if (argc<3){
+ 		cout << "usage gfs2rec [-err] <infilename> <outfilename>" << endl;
+ 		return -1;

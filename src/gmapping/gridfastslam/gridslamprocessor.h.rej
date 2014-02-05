@@ -1,0 +1,29 @@
+--- ./gridfastslam/gridslamprocessor.h	2007-08-27 08:29:07.000000000 -0700
++++ ../../gmapping_export/gridfastslam/gridslamprocessor.h	2011-10-24 14:39:43.393237444 -0700
+@@ -148,6 +148,7 @@
+ 			       int iterations, double likelihoodSigma=1, double likelihoodGain=1, unsigned int likelihoodSkip=0);
+     void setMotionModelParameters(double srr, double srt, double str, double stt);
+     void setUpdateDistances(double linear, double angular, double resampleThreshold);
++    void setUpdatePeriod(double p) {period_=p;}
+     
+     //the "core" algorithm
+     void processTruePos(const OdometryReading& odometry);
+@@ -176,7 +177,7 @@
+     virtual void onOdometryUpdate();
+     virtual void onResampleUpdate();
+     virtual void onScanmatchUpdate();
+-	
++
+     //accessor methods
+     /**the maxrange of the laser to consider */
+     MEMBER_PARAM_SET_GET(m_matcher, double, laserMaxRange, protected, public, public);
+@@ -248,6 +249,9 @@
+  
+     /**the laser beams*/
+     unsigned int m_beams;
++    double last_update_time_;
++    double period_;
++	
+     
+     
+     /**the particles*/

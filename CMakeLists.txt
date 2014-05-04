@@ -1,35 +1,186 @@
-cmake_minimum_required(VERSION 2.4.6)
+cmake_minimum_required(VERSION 2.8.3)
+project(gmapping_openmp)
 
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  map_server
+  message_filters
+  nav_msgs
+  rosbag
+  rosconsole
+  roscpp
+  std_msgs
+  tf
+)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
+find_package(Boost REQUIRED COMPONENTS signals)
 
-set(ROS_BUILD_TYPE Release)
-
-rosbuild_init()
-
-rosbuild_add_boost_directories()
-
-FIND_PACKAGE( OpenMP REQUIRED)
-if(OPENMP_FOUND)
-message("OPENMP FOUND")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+option(WITH_OPENMP      "Build with OpenMP support for multithreading"                  ON)
+# add OpenMP support
+if (WITH_OPENMP)
+    find_package(OpenMP QUIET)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${OpenMP_C_FLAGS}")
+    if (NOT OPENMP_FOUND)
+        set(WITH_OPENMP OFF)
+    endif()
 endif()
 
-#SET (CMAKE_C_COMPILER	"/usr/bin/clang")
-#SET (CMAKE_CXX_COMPILER "/usr/bin/clang++")
+## Uncomment this if the package has a setup.py. This macro ensures
+## modules and global scripts declared therein get installed
+## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
+# catkin_python_setup()
 
-include_directories(${PROJECT_SOURCE_DIR}/src/gmapping/)
+################################################
+## Declare ROS messages, services and actions ##
+################################################
+
+## To declare and build messages, services or actions from within this
+## package, follow these steps:
+## * Let MSG_DEP_SET be the set of packages whose message types you use in
+##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
+## * In the file package.xml:
+##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
+##   * If MSG_DEP_SET isn't empty the following dependencies might have been
+##     pulled in transitively but can be declared for certainty nonetheless:
+##     * add a build_depend tag for "message_generation"
+##     * add a run_depend tag for "message_runtime"
+## * In this file (CMakeLists.txt):
+##   * add "message_generation" and every package in MSG_DEP_SET to
+##     find_package(catkin REQUIRED COMPONENTS ...)
+##   * add "message_runtime" and every package in MSG_DEP_SET to
+##     catkin_package(CATKIN_DEPENDS ...)
+##   * uncomment the add_*_files sections below as needed
+##     and list every .msg/.srv/.action file to be processed
+##   * uncomment the generate_messages entry below
+##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
+
+## Generate messages in the 'msg' folder
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
+
+## Generate services in the 'srv' folder
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
+
+## Generate actions in the 'action' folder
+# add_action_files(
+#   FILES
+#   Action1.action
+#   Action2.action
+# )
+
+## Generate added messages and services with any dependencies listed here
+# generate_messages(
+#   DEPENDENCIES
+#   nav_msgs#   std_msgs
+# )
+
+###################################
+## catkin specific configuration ##
+###################################
+## The catkin_package macro generates cmake config files for your package
+## Declare things to be passed to dependent projects
+## INCLUDE_DIRS: uncomment this if you package contains header files
+## LIBRARIES: libraries you create in this project that dependent projects also need
+## CATKIN_DEPENDS: catkin_packages dependent projects also need
+## DEPENDS: system dependencies of this project that dependent projects also need
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES gmapping_openmp
+#  CATKIN_DEPENDS map_server message_filters nav_msgs rosbag rosconsole roscpp std_msgs tf
+#  DEPENDS system_lib
+)
+
+###########
+## Build ##
+###########
+
+## Specify additional locations of header files
+## Your package locations should be listed before other locations
+# include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  src/gmapping
+)
+
 
 ADD_DEFINITIONS(-DLINUX -ffast-math)
 
-rosbuild_add_executable(bin/slam_gmapping src/slam_gmapping.cpp src/main.cpp ${gmapping_src})
-target_link_libraries(bin/slam_gmapping)
-rosbuild_link_boost(bin/slam_gmapping signals)
+## Declare a cpp library
+# add_library(gmapping_openmp
+#   src/${PROJECT_NAME}/gmapping_openmp.cpp
+# )
+
+
+set (gmapping_src src/gmapping/configfile/configfile.cpp src/gmapping/gridfastslam/gridslamprocessor_tree.cpp src/gmapping/gridfastslam/motionmodel.cpp src/gmapping/gridfastslam/gfsreader.cpp src/gmapping/gridfastslam/gridslamprocessor.cpp src/gmapping/scanmatcher/scanmatcher.cpp src/gmapping/scanmatcher/eig3.cpp src/gmapping/scanmatcher/scanmatcherprocessor.cpp src/gmapping/scanmatcher/smmap.cpp src/gmapping/utils/movement.cpp src/gmapping/utils/stat.cpp src/gmapping/utils/printmemusage.cpp src/gmapping/log/configuration.cpp src/gmapping/log/carmenconfiguration.cpp src/gmapping/log/sensorstream.cpp src/gmapping/log/sensorlog.cpp src/gmapping/sensor/sensor_range/rangereading.cpp src/gmapping/sensor/sensor_range/rangesensor.cpp src/gmapping/sensor/sensor_base/sensor.cpp src/gmapping/sensor/sensor_base/sensorreading.cpp src/gmapping/sensor/sensor_odometry/odometryreading.cpp src/gmapping/sensor/sensor_odometry/odometrysensor.cpp)
+
+
+## Declare a cpp executable
+add_executable(slam_gmapping src/slam_gmapping.cpp src/main.cpp ${gmapping_src})
+
+## Add cmake target dependencies of the executable/library
+## as an example, message headers may need to be generated before nodes
+# add_dependencies(gmapping_openmp_node gmapping_openmp_generate_messages_cpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(slam_gmapping
+  ${catkin_LIBRARIES}
+  ${boost_LIBRARIES}
+)
+
+#############
+## Install ##
+#############
+
+# all install targets should use catkin DESTINATION variables
+# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+# install(PROGRAMS
+#   scripts/my_python_script
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark executables and/or libraries for installation
+# install(TARGETS gmapping_openmp gmapping_openmp_node
+#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark cpp header files for installation
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
+# )
+
+## Mark other files for installation (e.g. launch and bag files, etc.)
+# install(FILES
+#   # myfile1
+#   # myfile2
+#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# )
+
+#############
+## Testing ##
+#############
+
+## Add gtest based cpp test target and link libraries
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_gmapping_openmp.cpp)
+# if(TARGET ${PROJECT_NAME}-test)
+#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+# endif()
+
+## Add folders to be run by python nosetests
+# catkin_add_nosetests(test)
